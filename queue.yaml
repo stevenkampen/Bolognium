@@ -1,0 +1,30 @@
+queue:
+- name: default
+  rate: 1/s
+  bucket_size: 1
+
+- name: refresh-user-data
+  rate: 5/s
+  bucket_size: 5
+
+- name: quick
+  rate: 5/s
+  bucket_size: 10
+
+- name: create-default-entities
+  rate: 1/s
+  bucket_size: 20
+
+- name: metric-batch-workers
+  rate: 100/s
+  bucket_size: 100
+
+- name: metric-meta-workers
+  rate: 100/s
+  bucket_size: 100
+  retry_parameters:
+    task_retry_limit: 1
+
+- name: purge-entities
+  rate: 1/s
+  bucket_size: 1

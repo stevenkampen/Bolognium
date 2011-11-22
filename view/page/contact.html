@@ -1,0 +1,59 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	Contact Me
+{% endblock %}
+
+{% block body %}
+
+<div class="h1-bg" style="background:url('/img/contact-heading.png') no-repeat;width:100%;padding-top:2px;">
+	<h1 style="color:#FFFFFF;margin-left:55px;">Contact Me</h1>
+</div>
+<div>
+  <div style="float:left;width:400px;">
+    <form id="contact-form" class="fancy" method="POST" action="/contact" style="width:99%;">
+      <div style="padding:0;width:100%;">
+        <label for="from_name">Your Name</label>
+        <input name="from_name" type="text" value="{{input.get('from_name')|default('', True)}}" style="width:95%;"/>
+        {% if errors.get('from_name') %}
+          <span class="form-error">{{errors.get('from_name').msg()}}</span>
+        {% endif %}
+
+        <label for="from_email">Your Email</label>
+        <input name="from_email" type="text" value="{{input.get('from_email')|default('', True)}}" style="width:95%;"/>
+        {% if errors.get('from_email') %}
+          <span class="form-error">{{errors.get('from_email').msg()}}</span>
+        {% endif %}
+        
+        <label for="message">Your Message</label>
+        <textarea name="message" rows="15" style="width:95%;">{{input.get('message')|default('', True)}}</textarea>
+        {% if errors.get('message') %}
+          <span class="form-error">{{errors.get('message').msg()}}</span>
+        {% endif %}
+        <input class="goog-inline-block" type="submit" value="Send"/>
+      </div>
+    </form>
+  </div>
+  <div class="contact-options-list" style="float:right;width:300px;">
+    <ul class="contact-options-list" style="list-style-type:none;list-style-image:none;">
+			<li style="background:url('/img/gplus-contact-icon.png') 0 15px no-repeat;">
+				<h2>Google+</h2>
+				<a title="Contact Steven on Google+" href="https://plus.google.com/103490014051577974992">https://plus.google.com/103490014051577974992</a>
+			</li>
+			<li style="background:url('/img/stackoverflow-contact-icon.png') 0 10px no-repeat;">
+				<h2>Stackoverflow</h2>
+				<a title="Contact Steven on Stackoverflow" href="http://stackoverflow.com/users/512524/steve">http://stackoverflow.com/users/512524/steve</a>
+			</li>
+			<li style="background:url('/img/twitter-contact-icon.png') 0 10px no-repeat;">
+				<h2>Twitter</h2>
+				<a title="Contact Steven on Twitter" href="http://twitter.com/@stevesherrie">@stevesherrie</a>
+			</li>
+			<li style="background:url('/img/facebook-contact-icon.png') 0 10px no-repeat;">
+				<h2>Facebook</h2>
+				<a title="Contact Steven on Facebook" href="http://facebook.com/aerostop">http://facebook.com/aerostop</a>
+      </li>
+    </ul>
+  </div>
+  <div style="clear:both;"></div>
+</div>
+{% endblock %}

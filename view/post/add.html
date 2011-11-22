@@ -1,0 +1,59 @@
+{% extends 'layouts/%s.html' % (layout)  %}
+
+
+{% block title %}
+  Wasteofpaper.com - Create New Post
+{% endblock %}
+
+{% block body %}
+
+<h1>Create New Post</h1>
+
+<form id="post-add-form" method="POST" action="/post/add" style="width:100%;" class="fancy">
+	<div style="padding:0;">
+    <div>
+			<label for="title">Title</label>
+			<input name="title" type="text" style="width:70%;" value="{{ input.get('title')|default('', True) }}"/>
+      <span class="form-field-note">Can contain up to <span style="font-weight:bold;">150</span> characters of most types.</span>
+			{% if errors.get('title') %}
+				<span class="form-field-note form-error">{{errors.get('title').msg()}}</span>
+			{% endif %}
+    </div>
+
+    <div>
+			<label for="slugs">Slug</label>
+      <span class="form-field-note">The slug is used in the <strong>permalink</strong> for this Post. e.g. <span style="font-style:italic;">{{parsed_uri.scheme}}://{{parsed_uri.netloc}}/posts/44-<span style="font-weight:bold;">this-is-the-slug</span></span></span>
+			<input name="slugs.[ADD]" type="text" style="width:70%;" value="{{ input.get('slugs.[ADD]')|default('', True) }}"/>
+      <span class="form-field-note">Can contain up to <span style="font-weight:bold;"><span style="font-weight:bold;">100</span></span> characters, but only lowercase letters and the hyphen (<span style="font-weight:bold;font-size:150%;">-</span>).</span>
+			{% if errors.get('slugs.[ADD]') %}
+				<span class="form-field-note form-error">{{errors.get('slugs.[ADD]').msg()}}</span>
+			{% endif %}
+    </div>
+
+    <div>
+			<label for="teaser">Teaser</label>
+			<textarea name="teaser" style="width:70%;" rows="3">{{ input.get('teaser')|default('', True) }}</textarea>
+      <span class="form-field-note">Can contain up to <span style="font-weight:bold;">500</span> characters of plain text.</span>
+			{% if errors.get('teaser') %}
+				<span class="form-field-note form-error">{{errors.get('teaser').msg()}}</span>
+			{% endif %}
+    </div>
+
+    <div>
+			<label for="body">Body</label>
+      <div id="post-body-wysiwyg-toolbar" class="wysiwyg-textarea-input-toolbar"></div>
+      <textarea name="body" id="post-body-wysiwyg" class="wysiwyg-textarea-input" style="width:70%;min-height:500px;"></textarea>
+      <script type="text/javascript">
+        _registerKick('app.startEditorOnField', ['post-body-wysiwyg', 'post-add-form', {{utils.json.dumps(input.get('body', ''))}}]);
+      </script>
+      {% if errors.get('body') %}
+        <span class="form-field-note form-error">{{errors.get('body').msg()}}</span>
+      {% endif %}
+      
+    </div>
+    <div style="margin:10px 0;">
+		<input type="submit" value="Add Post"/>
+    </div>
+	</div>
+</form>
+{% endblock %}

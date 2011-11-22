@@ -1,0 +1,19 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	Add Domain
+{% endblock %}
+
+{% block body %}
+	<h1>Add Domain</h1>
+	<form id="domain-add-form" class="fancy" method="POST" action="/user/domain_add/{{app.auth.current_user('id')}}">
+		<div>
+			<label for="domain">Domain Name</label>
+			<input name="domain.domain_name" type="text" value="{{ input.get('domain.domain_name', None) or '' }}"/>
+		</div>
+    {% if errors.get('domain.domain_name') %}
+      <span class="form-error">{{errors.get('domain.domain_name').msg()}}</span>
+    {% endif %}
+		<input type="submit" value="Add Domain"/>
+	</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	404 Not Found
+{% endblock %}
+
+{% block body %}
+	<h1>404 Not Found</h1>
+	<div class="message alert">The url <span style="color:#000000;">'{{parsed_uri.path}}'</span> was not found on this site.</div>
+{% endblock %}
+

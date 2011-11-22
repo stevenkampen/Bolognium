@@ -1,0 +1,25 @@
+<div class="mainnav">
+	<ul class="mainnav">
+		{% set buttons = ['home', 'about', 'contact'] %}
+		{% if auth.is_current_user_admin() %}
+			{% set buttons = buttons + ['admin'] %}
+		{% endif %}
+		{% set k = 0 %}
+		{% for button_name in buttons %}
+			{% set link = '/%s' % button_name %}
+			{% set extra_class = '' if k%2 == 1 else 'odd' %}
+			{% if button_name == 'home' %}
+				{% set link = '/' %}
+				{% if not parsed_uri['path_items']|count %}
+					{% set extra_class = '%s active' % extra_class %}
+				{% endif %}
+			{% elif parsed_uri['path_items']|count and parsed_uri['path_items'][0] == button_name %}
+				{% set extra_class = '%s active' % extra_class %}
+			{% endif %}
+			<li id="mainnav-button-{{button_name}}" class="mainnav-button {{extra_class}}">
+        <a class="mainnav-link" href="{{link}}"><span class="mainnav-link">{{button_name|title}}</span></a>
+      </li>
+			{% set k = k+1 %}
+		{% endfor %}
+	</ul>
+</div>

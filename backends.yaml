@@ -1,0 +1,5 @@
+backends:
+- name: metric-worker
+  class: B1
+  options: dynamic
+  instances: 10

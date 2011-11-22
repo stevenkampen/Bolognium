@@ -1,0 +1,17 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	500 Server Error
+{% endblock %}
+
+{% block body %}
+	<h1>500 Server Error</h1>
+	<div class="message error"><strong>There was an unspecified server error.</strong></div>
+  {% if auth.is_current_user_admin() %}
+    <div class="message system">
+      <div class="message info"><strong>This traceback is viewable only as an administrator.</strong></div>
+      <pre>{{traceback}}</pre>
+    </div>
+  {% endif %}
+{% endblock %}
+

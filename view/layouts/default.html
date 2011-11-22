@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600,700' rel='stylesheet' type='text/css'>
+		<title>
+			Steve Sherrie | Wasteofpaper.com | {% block title %}{% endblock %}
+		</title>
+    <meta property="og:site_name" content="Wasteofpaper.com"/> 
+    <meta property="fb:admins" content="502460599" />
+		<link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+		<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+		<link rel="stylesheet" type="text/css" href="/css/main.css"/>
+		<script type="text/javascript">
+      _app_config = {{_json_globals_vars}};
+      _logger = {};
+      _logger.log = function(msg) {
+        if(window.console){
+          window.console.debug(msg);
+        }
+      }
+			function bodyOnload() {
+				_onloadKickOff('body');
+			}
+			window.onload = bodyOnload;
+			var _kickOffList = {};
+			var _onloadHasRun = false;
+			var __onload_body = false;
+			var __onload_script = false;
+			var _registerKick = function(func, opts) {
+				if (_onloadHasRun !== true) {
+					_kickOffList[func] = opts;
+				}
+				else {
+					_runFunction(func,opts);
+				}
+			}
+			var _runFunction = function(name,opts) {
+				var func = window;
+				var func_parts = name.split('.');
+				self = window[func_parts[0]];
+				for(var i in func_parts) {
+					func = func[func_parts[i]];
+					if (typeof(func) == 'object') {
+						self = func;
+					}
+				}
+				delete _kickOffList[name];
+				func.apply(self,opts);
+			}
+			var _onloadKickOff = function(from){
+				window['__onload_'+from] = true;
+				try {
+					if(__onload_body == true && __onload_script == true){
+						_onloadHasRun = true;
+						for (var func in _kickOffList) {
+							var opts = _kickOffList[func];
+							_runFunction(func,opts);
+						}
+					}
+				}
+				catch(e) {
+          throw e;
+        }
+			};
+		</script>
+		<script type="text/javascript" src="/js/main-min.js"></script>
+		{% block head %}
+		{% endblock %}
+	</head>
+	<body class={{body_class}}>
+    <div id="fb-root"></div>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-26537792-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+      (function() {
+        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+        po.src = 'https://apis.google.com/js/plusone.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=6619787894";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <div id="content-outer" class="clearfix" style="padding-top:230px;">
+      <div id="content-inner">
+        <noscript>
+          <div class="alert message" id="no-js-warning">
+            This site relies heavily on javascript, so <strong>enable it</strong>.
+          </div>
+        </noscript>
+        {% set messages = auth.get_session().get('messages', []) %}
+        {% for msg in messages %}
+          <span class="message {{msg.type}}">{{ msg.message }}</span>
+        {% endfor %}
+        {% set _x = auth.clear_messages() %}
+        {% block body %}{% endblock %}
+        {% set logs = auth.get_session().get('log_records', []) %}
+        {% for log_record in logs %}
+          <span class="message system">
+              <strong>{{log_record.title}}</strong>
+              <pre>{{log_record.payload}}</pre>
+          </span>
+        {% endfor %}
+        {% set x = auth.clear_log_records() %}
+      </div>
+    </div>
+    <div id="header-outer" class="clearfix" style="position:absolute;top:0;">
+      <div id="header-inner">
+        {% include 'elements/mainnav.html' %}
+        <div style="margin:0 150px;padding:0;position:absolute;top:14px;" id="logo">
+          <img src="/img/me.png">
+        </div>
+      </div>
+    </div>
+	</body>	
+</html>

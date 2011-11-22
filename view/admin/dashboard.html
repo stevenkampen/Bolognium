@@ -1,0 +1,13 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	Admin Dashboard
+{% endblock %}
+
+{% block body %}
+	<h1>Admin Dashboard</h1>
+	<div>
+    <a title="Add Post" href="/post/add">Add Post</a><br/>
+    <a title="List Posts" href="/admin/post-index">List All Posts</a><br/>
+	</div>
+{% endblock %}

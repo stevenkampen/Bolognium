@@ -1,0 +1,8 @@
+cron:
+- description: daily
+  url: /cron/daily
+  schedule: every 24 hours
+
+- description: hourly
+  url: /cron/hourly
+  schedule: every 1 hours

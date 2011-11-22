@@ -1,0 +1,12 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	Your Account
+{% endblock %}
+
+{% block body %}
+	<h1>Your Account</h1>
+	<a title="Create Gateway" href="/gateway/add">Create Gateway</a><br/>
+	<a title="List Gateways" href="/gateway/index">List Gateways</a><br/>
+	<a title="List Gateways" href="/user/domain_add/{{app.auth.current_user('id')}}">Add a Domain to Your Account</a><br/>
+{% endblock %}
