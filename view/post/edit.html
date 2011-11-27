@@ -9,7 +9,7 @@
 <h1>Edit Post ID: {{post_id}}</h1>
 
 <div class="{{ 'success' if post.enabled else 'alert' }} message">
-  <form id="post-toggle-enabled" class="fancy" method="POST" action="/post/edit/{{post_id}}">
+  <form id="post-toggle-enabled" class="fancy" method="POST" action="/post/edit-status/{{post_id}}">
   <table>
     <tbody>
       <tr>
