@@ -27,7 +27,7 @@ import sys, os, urlparse, traceback, logging, datetime, Cookie, pickle, cgi
 import webob
 
 class BaseRequestHandler(webapp.webapp2.RequestHandler):
-  
+ 
   def get_valid_handlers(self):
     return 'get, post'
 
@@ -36,21 +36,16 @@ class BaseRequestHandler(webapp.webapp2.RequestHandler):
     if status_code in (301, 302):
       return True
     return False
-
-  user = None
-  _parsed_uri = None
-  _parsed_referer_uri = None
-  _start_time = None
-  _response_data = None
-  _render_on_redirect = False
   
-    
+  def get_render_on_redirect(self):
+    return self._render_on_redirect if hasattr(self, u'_render_on_redirect') else False
+  
+  @property
+  def user(self):
+    return self._user if hasattr(self, u'_user') else None
+
   def set_status(self, code):
     self.response.set_status(code)
-
-  def ms_since_start(self):
-    td = datetime.datetime.now() - self._start_time
-    return int(td.days*86400000 + td.seconds*1000 + td.microseconds/1000)
 
   def dispatch(self, method, controller, action, method_kwargs):
     """
@@ -141,14 +136,14 @@ class BaseRequestHandler(webapp.webapp2.RequestHandler):
   @property
   def parsed_referer_uri(self):
     # get the current uri parsed into individual elements
-    if not self._parsed_referer_uri:
+    if not hasattr(self, u'_parsed_referer_uri'):
       self._parsed_referer_uri = self.parse_uri(self.referer_uri)
     return self._parsed_referer_uri
 
   @property
   def parsed_uri(self):
     # get the current uri parsed into individual elements
-    if not self._parsed_uri:
+    if not hasattr(self, u'_parsed_uri'):
       self._parsed_uri = self.parse_uri(self.request.uri)
     return self._parsed_uri
 
@@ -172,10 +167,10 @@ class BaseRequestHandler(webapp.webapp2.RequestHandler):
     return self.user
 
   def login_user(self, user):
-    self.user = self.session[u'user'] = user
+    self._user = self.session[u'user'] = user
 
   def logout_user(self):
-    self.user = self.session[u'user'] = None
+    self._user = self.session[u'user'] = None
 
   def update_session_user(self):
     self.session[u'user'] = self.current_user()
@@ -191,7 +186,6 @@ class BaseRequestHandler(webapp.webapp2.RequestHandler):
   def __call__(self, *args, **kwargs):
     try:
       self.setup()
-      self._start_time = datetime.datetime.now()
       self.request.func(**self.request.request_kwargs)
     except Exception, e:
       self.handle_exception(e)
@@ -199,29 +193,27 @@ class BaseRequestHandler(webapp.webapp2.RequestHandler):
       self._respond()
 
   def respond(self, *args, **kwargs):
-    self.response.write(self._response_data)
+    self.response.write(self.get_response_data())
+
 
 class NoTemplateRequestHandler(BaseRequestHandler):
-  _request_data = None
-  
   def error(self, code):
     super(NoTemplateRequestHandler, self).error(code=code)
 
   def set_response_data(self, data=None):
     self._response_data = data
 
+  def get_response_data(self, data=None):
+    if hasattr(self, u'_response_data'):
+      return self._response_data
+    return None
+
 class BlobstoreUploadHandler(NoTemplateRequestHandler, webapp.blobstore_handlers.BlobstoreUploadHandler):
   pass
 
-class AjaxRequestHandler(NoTemplateRequestHandler):
-  set_json_content_type_header = True
-
-  def omit_json_content_type_header(self):
-    self.set_json_content_type_header = False
-    
+class AjaxRequestHandler(NoTemplateRequestHandler):  
   def respond(self, *args, **kwargs):
-    if self.set_json_content_type_header == True:
-      self.response.headers.add_header('Content-Type', 'application/json')
+    self.response.headers.add_header('Content-Type', 'application/json')
 
     #json encode the response data
     response_payload = utils.json.dumps(self._response_data)
@@ -234,8 +226,6 @@ class AjaxRequestHandler(NoTemplateRequestHandler):
     return self.response
 
 class RPCRequestHandler(AjaxRequestHandler):
-  _rpc_params = {}
-
   @property
   def params(self):
     try:
@@ -248,23 +238,19 @@ class RPCRequestHandler(AjaxRequestHandler):
     return self._rpc_params
 
 class ApiRequestHandler(NoTemplateRequestHandler):
-  _decrypted_payload = None
-  _request_action = None
-  _request_data = None
-
   def setup(self):
     self._decrypt_payload()
 
   @property
   def request_action(self):
-    return self._request_action
+    return self._request_action if hasattr(self, u'_request_action') else None
 
   @property
   def request_data(self):
-    return self._request_data
+    return self._request_data if hasattr(self, u'_request_data') else None
 
   def _decrypt_payload(self):
-    if not self._decrypted_payload:
+    if not hasattr(self, u'_decrypted_payload'):
       try:
         _payload = aes.decrypt(self.request.get(u'payload', ''))
         assert isinstance(_payload, basestring)
@@ -288,28 +274,64 @@ class ApiRequestHandler(NoTemplateRequestHandler):
     try:
       getattr(self, self.request_action)(*args, **kwargs)
     except AttributeError, e:
-      self.log.error(u'Api Request Handler didn\'t have method \'%s\' '
+      utils.log.error(u'Api Request Handler didn\'t have method \'%s\' '
         u'as described by the request_action param.')
       self.error(404)
 
+class MutliErrorDict(webob.multidict.MultiDict):
+
+  def get_all(self, argument_name):
+    #return the list of errors, or an empty list
+    return self.get_dict_of_lists().get(argument_name, [])
+
+  def get_first(self, argument_name):
+    #return the list of errors, or an empty list
+    errors = self.get_dict_of_lists().get(argument_name, [])
+    return errors[0] if len(errors) else None
+
+  def get_dict_of_lists(self, flush=False):
+    if not hasattr(self, u'_dict_of_lists') or flush is True:
+      self._dict_of_lists = self.dict_of_lists()
+    return self._dict_of_lists
+      
+
 class RequestHandler(BaseRequestHandler):
-  _layout = None
-  _body_class = None
-  _template_name = None
-  _template_vars = {}
+  def get_template_vars(self):
+    if not hasattr(self, u'_template_vars'):
+      self._template_vars = {}
+    return self._template_vars 
 
   def set(self, name=None, data=None):
+    """
+    Makes a variable available by 'name' within the template.
+    """
+    # @@TODO
+    # Protect against setting local template variables with names
+    # that conflict with those used in by global template variables.
     if name:
-      self._template_vars[name] = data
-      return
-    return False
+      self.get_template_vars()[name] = data
 
-    
+  def get_template_errors(self):
+    """
+    Returns the collected template errors dictionary
+    """
+    if not hasattr(self, u'_errors'):
+      self._errors = MutliErrorDict()
+    return self._errors 
+
+  def set_template_error(self, name, error):
+    """
+    Registers an error message on a name (usually a property name),
+    for use within the template.
+    """
+    self.get_template_errors().update({name: error})
 
   def _global_template_vars(self):
     _globals = {
       u'session': self.session,
       u'layout': self.layout,
+      u'errors': self.get_template_errors(),
+      u'request': self.request,
       u'body_class': self.body_class,
       u'raw_uri' : self.request.uri,
       u'parsed_uri' : self.parsed_uri,
@@ -322,11 +344,11 @@ class RequestHandler(BaseRequestHandler):
 
   @property
   def layout(self):
-    return self._layout if self._layout else u'default'
+    return self._layout if hasattr(self, u'_layout') else u'default'
 
   @property
   def body_class(self):
-    return self._body_class if self._body_class else u''
+    return self._body_class if hasattr(self, u'_body_class') else u''
 
   def _json_global_vars(self):
     return {
@@ -359,16 +381,16 @@ class RequestHandler(BaseRequestHandler):
   """
   def respond(self, controller, action):
     #for redirects that shouldn't render the page before they redirect
-    if self.will_redirect() and self._render_on_redirect == False:
+    if self.will_redirect() and self.get_render_on_redirect() == False:
       return self.response
     """Load the template"""
     _template = template.get_template(name=u'%s/%s.html' % 
       (utils.un_camel_case(controller), utils.un_camel_case(action)))
 
     """Load some default variables"""
-    default_vars = self._global_template_vars()
-    default_vars.update(self._template_vars)
     self.set('_json_globals_vars', utils.json.dumps(self._json_global_vars()))
+    default_vars = self._global_template_vars()
+    default_vars.update(self.get_template_vars())
     output = _template.render(default_vars)
     self.response.write(output)
     return self.response

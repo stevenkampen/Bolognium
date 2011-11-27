@@ -37,11 +37,13 @@ class Mapper(RoutesMapper):
       path_parts = path.split(u'/')
       if len(path_parts) >= 2:
         controller = path_parts[0]
-        action = path_parts[1].replace(u'-', u'_')
+        action = path_parts[1]
         if len(path_parts) >= 3:
           method_kwargs[u'id'] = path_parts[2]
 
     if controller and action:
+      #replace hyphens with underscores in the action
+      action = action.replace(u'-', u'_')
       """build the module and controller class names from the route parameters."""
       module_name = u'controller.%s' % controller
       action = utils.camel_case(action)
@@ -57,11 +59,15 @@ class Mapper(RoutesMapper):
         """return controller class"""
         module = sys.modules[module_name]
         _handler = getattr(module, class_name, None)
+        utils.log.debug(u"###########REQUEST############ Controller: \'%s\' RequestHandler | Class: \'%s\' | Method \'%s\'." % (module_name, class_name, request.request_method.upper()))
         if _handler:
           _handler = _handler(request, response)
           method = getattr(_handler, request.request_method.lower(), None)
           return _handler.dispatch(method=method, controller=controller, 
             action=action, method_kwargs=method_kwargs)
+        else:
+          utils.log.warn(u"Could Not Find RequestHandler classs by name: %s." % class_name)
+          
 
     request.abort(404)
 

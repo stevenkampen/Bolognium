@@ -28,10 +28,9 @@ class ImageIndexHandler(RequestHandler):
 class ImageGetUploadUrlHandler(AjaxRequestHandler):
   @auth.require_admin()
   def get(self, *args, **kwargs):
-    self.omit_json_content_type_header()
+    #self.omit_json_content_type_header()
     self.set_response_data({u'upload_url': blobstore.create_upload_url(u'/image/add')})
-    #self.set_response_data({u'upload_url': u'/admin/dashboard'})
-  
+    
 class ImageAddHandler(BlobstoreUploadHandler):
   @auth.require_admin()
   def post(self, *args, **kwargs):

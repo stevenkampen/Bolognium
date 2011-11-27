@@ -13,30 +13,30 @@
 	<div style="padding:0;">
     <div>
 			<label for="title">Title</label>
-			<input name="title" type="text" style="width:70%;" value="{{ input.get('title')|default('', True) }}"/>
+			<input name="title" type="text" style="width:70%;" value="{{ request.POST.get('title')|default('', True) }}"/>
       <span class="form-field-note">Can contain up to <span style="font-weight:bold;">150</span> characters of most types.</span>
-			{% if errors.get('title') %}
-				<span class="form-field-note form-error">{{errors.get('title').msg()}}</span>
-			{% endif %}
+        {% for er in errors.get_all('title') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
     </div>
 
     <div>
-			<label for="slugs">Slug</label>
-      <span class="form-field-note">The slug is used in the <strong>permalink</strong> for this Post. e.g. <span style="font-style:italic;">{{parsed_uri.scheme}}://{{parsed_uri.netloc}}/posts/44-<span style="font-weight:bold;">this-is-the-slug</span></span></span>
-			<input name="slugs.[ADD]" type="text" style="width:70%;" value="{{ input.get('slugs.[ADD]')|default('', True) }}"/>
+			<label for="slug">Slug</label>
+      <span class="form-field-note">The slug is used in the <strong>permalink</strong> for this Post. e.g. <span style="font-style:italic;">{{parsed_uri.scheme}}://{{parsed_uri.netloc}}/posts/44/<span style="font-weight:bold;">this-is-the-slug</span></span></span>
+			<input name="slug" type="text" style="width:70%;" value="{{ request.POST.get('slug', '') }}"/>
       <span class="form-field-note">Can contain up to <span style="font-weight:bold;"><span style="font-weight:bold;">100</span></span> characters, but only lowercase letters and the hyphen (<span style="font-weight:bold;font-size:150%;">-</span>).</span>
-			{% if errors.get('slugs.[ADD]') %}
-				<span class="form-field-note form-error">{{errors.get('slugs.[ADD]').msg()}}</span>
-			{% endif %}
+        {% for er in errors.get_all('slug') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
     </div>
 
     <div>
 			<label for="teaser">Teaser</label>
-			<textarea name="teaser" style="width:70%;" rows="3">{{ input.get('teaser')|default('', True) }}</textarea>
+			<textarea name="teaser" style="width:70%;" rows="3">{{ request.POST.get('teaser')|default('', True) }}</textarea>
       <span class="form-field-note">Can contain up to <span style="font-weight:bold;">500</span> characters of plain text.</span>
-			{% if errors.get('teaser') %}
-				<span class="form-field-note form-error">{{errors.get('teaser').msg()}}</span>
-			{% endif %}
+        {% for er in errors.get_all('teaser') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
     </div>
 
     <div>
@@ -44,11 +44,11 @@
       <div id="post-body-wysiwyg-toolbar" class="wysiwyg-textarea-input-toolbar"></div>
       <textarea name="body" id="post-body-wysiwyg" class="wysiwyg-textarea-input" style="width:70%;min-height:500px;"></textarea>
       <script type="text/javascript">
-        _registerKick('app.startEditorOnField', ['post-body-wysiwyg', 'post-add-form', {{utils.json.dumps(input.get('body', ''))}}]);
+        _registerKick('app.startEditorOnField', ['post-body-wysiwyg', 'post-add-form', {{utils.json.dumps(request.POST.get('body', ''))}}]);
       </script>
-      {% if errors.get('body') %}
-        <span class="form-field-note form-error">{{errors.get('body').msg()}}</span>
-      {% endif %}
+        {% for er in errors.get_all('body') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
       
     </div>
     <div style="margin:10px 0;">

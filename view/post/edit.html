@@ -26,46 +26,56 @@
   </form>
 </div>
 <div style="background-color:#F8F8FF;padding:0 10px;margin-bottom:10px;border:1px solid #E6E6FA;">
-  <h2>Active Slugs</h2>
-  {% if post.slugs|count %}
-  <table style="margin-left:20px;">
+  <h2>Current Permalinks</h2>
+  <table style="font-size:80%;">
     <tbody>
-      {% for slug in post.slugs %}
+    <tr>
+      <td>
+        <em>{{utils.get_config('domain')}}/post/{{post.key.id()}}</em>
+      </td>
+      <td>
+      </td>
+    </tr>
+    {% for slug in post.slugs %}
       <tr>
-        <td><em>{{slug}}</em></td>
         <td>
-          <form id="post-delete-slug-form" class="fancy" method="POST" action="/post/edit/{{post.key.id()}}">
-            <input name="slugs.[DELETE:{{slug}}]" type="hidden" value="true"/>
-            <input type="submit" value="Delete" style="margin-left: 5px;padding:2px 2px;font-size:80%;"/>
+          <em><span style="line-height:24px;float:left;">{{utils.get_config('domain')}}/post/{{slug}}</span></em></em>
+        </td>
+        <td>
+          <form style="float:left;" id="post-delete-slug-form" class="fancy" method="POST" action="/post/remove-slug/{{post.key.id()}}">
+            <input name="slug" type="hidden" value="{{slug}}"/>
+            <input type="submit" value="Remove Permalink" style="margin:0 0 0 5px;font-size:80%;"/>
           </form>
         </td>
       </tr>
-      {% endfor %}
+    {% endfor %}
     </tbody>
   </table>
-  {% else %}
-    <span style="alert">There are no slugs attached to this Post.</span>
-  {% endif %}
-</div>
-<div style="background-color:#F8F8FF;padding:0 10px;margin-bottom:10px;border:1px solid #E6E6FA;">
-  <h2>Add Another Slug</h2>
-  <form id="post-add-slug-form" class="fancy" method="POST" action="/post/edit/{{post.key.id()}}">
-  <table width="70%">
+  <h2>Add Permalink</h2>
+  <form id="post-add-slug-form" class="fancy" method="POST" action="/post/add-slug/{{post.key.id()}}">
+  <table >
     <tbody>
       <tr>
-        <td>
-          <input name="slugs.[ADD]" type="text" style="width:95%;" value="{{ input.get('slugs.[ADD]')|default('', True) }}"/>
+        <td style="font-size:80%;">
+          {{utils.get_config('domain')}}/post/{{post.key.id()}}/
         </td>
         <td>
-          <input type="submit" value="Add Slug" style="margin:0;"/>
+          <input name="slug" type="text" style="width:95%;" value="{{ request.POST.get('slug', '') }}"/>
+        </td>
+        <td>
+          <input type="submit" value="Add Permalink" style="margin:0;"/>
         </td>
       </tr>
       <tr>
-        <td colspan="2">
-          <span class="form-field-note">Can contain up to <span style="font-weight:bold;">100</span> characters, but only lowercase letters and the hyphen (<span style="font-weight:bold;font-size:150%;">-</span>).</span>
-          {% if errors.get('slugs.[ADD]') %}
-            <span class="form-field-note form-error">{{errors.get('slugs.[ADD]').msg()}}</span>
-          {% endif %}
+        <td>
+        </td>
+        <td>
+          <span class="form-field-note">Can contain up to <span style="font-weight:bold;">100</span> characters, but only lowercase letters and the hyphen (<span style="font-weight:bold;">-</span>).</span>
+          {% for er in errors.get_all('slug') %}
+          <span class="form-field-note form-error">{{er}}</span>
+          {% endfor %}
+        </td>
+        <td>
         </td>
       </tr>
     </tbody>
@@ -78,20 +88,20 @@
       <div>
         <label for="title">Edit Title</label>
         <span class="form-field-note">e.g. <span style="font-style:italic;">Summer Girl Beach Festival!</span></span>
-        <input name="title" type="text" style="width:70%;" value="{{ input.get('title')|default(post.title, True) }}"/>
+        <input name="title" type="text" style="width:70%;" value="{{ request.POST.get('title')|default(post.title, True) }}"/>
         <span class="form-field-note">Can contain up to <span style="font-weight:bold;">150</span> characters of most types.</span>
-        {% if errors.get('title') %}
-          <span class="form-field-note form-error">{{errors.get('title').msg()}}</span>
-        {% endif %}
+        {% for er in errors.get_all('title') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
       </div>
 
       <div>
         <label for="teaser">Edit Teaser</label>
-        <textarea name="teaser" style="width:70%;" rows="3">{{ input.get('teaser')|default(post.teaser, True) }}</textarea>
+        <textarea name="teaser" style="width:70%;" rows="3">{{ request.POST.get('teaser')|default(post.teaser, True) }}</textarea>
         <span class="form-field-note">Can contain up to <span style="font-weight:bold;">500</span> characters of plain text.</span>
-        {% if errors.get('teaser') %}
-          <span class="form-field-note form-error">{{errors.get('teaser').msg()}}</span>
-        {% endif %}
+        {% for er in errors.get_all('teaser') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}
       </div>
 
       <div>
@@ -101,13 +111,12 @@
         <script type="text/javascript">
           _registerKick(
             'app.startEditorOnField',
-            ['post-body-wysiwyg', 'post-edit-form', {{utils.json.dumps(input.get('body', '')|default(post.body, True))}}]
+            ['post-body-wysiwyg', 'post-edit-form', {{utils.json.dumps(request.POST.get('body', '')|default(post.body, True))}}]
           );
         </script>
-        {% if errors.get('body') %}
-          <span class="form-field-note form-error">{{errors.get('body').msg()}}</span>
-        {% endif %}
-        
+        {% for er in errors.get_all('body') %}
+        <span class="form-field-note form-error">{{er}}</span>
+        {% endfor %}        
       </div>
       <input type="submit" value="Update Post"/>
     </div>

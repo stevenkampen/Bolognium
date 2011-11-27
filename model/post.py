@@ -54,3 +54,37 @@ class Post(db.Model):
 
   def last_updated(self):
     return self.updated
+
+  """
+  Property Filter Stuff
+  """
+  @classmethod
+  def _filter_title(cls, value, context={}, ctx_opts={}):
+    default_ctx_opts = {u'max_length': 150}
+    default_ctx_opts.update(ctx_opts)
+    return db.filters.sensible_uiname_chars_only.process(value, context, default_ctx_opts)
+
+  @classmethod
+  def _filter_slug(cls, value, context={}, ctx_opts={}):
+    default_ctx_opts = {u'max_length': 250}
+    default_ctx_opts.update(ctx_opts)
+    return db.filters.slug_filter.process(value, context, default_ctx_opts)
+
+  @classmethod
+  def _filter_teaser(cls, value, context={}, ctx_opts={}):
+    default_ctx_opts = {u'max_length': 350, u'min_length': 10}
+    default_ctx_opts.update(ctx_opts)
+    return db.filters.string_filter.process(value, context, default_ctx_opts)
+
+  @classmethod
+  def _filter_body(cls, value, context={}, ctx_opts={}):
+    default_ctx_opts = {}
+    default_ctx_opts.update(ctx_opts)
+    return db.filters.html_filter.process(value, context, default_ctx_opts)
+
+  @classmethod
+  def _filter_enabled(cls, value, context={}, ctx_opts={}):
+    default_ctx_opts = {}
+    default_ctx_opts.update(ctx_opts)
+    return db.filters.enabled_filter.process(value, context, default_ctx_opts)
+    

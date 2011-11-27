@@ -96,13 +96,14 @@ class Filter(object):
     'validation_failed': u'This value didn\'t pass property parent validation.'
   }
 
-  def __init__(self, default=None, required=False, strip=False, **kwargs):
+  def __init__(self, default=None, required=True, strip=False, **kwargs):
     self._opts = {
       u'default': default,
       u'required': required,
       u'strip': strip
     }
-    
+
+    #I forgot I wrote this. I'm hilarious.
     #I forgot I did this. I'm brilliant.
     self._opts.update(kwargs)
   
@@ -135,6 +136,8 @@ class Filter(object):
   THE process method.
   """
   def process(self, value, context={}, ctx_opts={}):
+    if u'computed_data' not in context:
+      context[u'computed_data'] = {}
 
     #do value.strip() if so instructed.
     if self.get_opt(u'strip', ctx_opts) and hasattr(value, 'strip'):
@@ -211,7 +214,7 @@ class Filter(object):
   
   def is_empty(self, value, context, ctx_opts):
     """Decide if the value is considered an empty value."""
-    return (value is None)
+    return value in (None, u'')
   
   def is_required(self, set_explicitely=False):
     required = self.get_opt(u'required')
@@ -219,153 +222,6 @@ class Filter(object):
       return True
     return False
 
-class SchemaFilter(Filter):
-  def __init__(self, *args, **kwargs):
-    self._fields = {}
-    self._formvalidators = []
-    self._opts = {
-      u'default': {},
-      u'required': False,
-      u'strip': False
-    }
-    self.allow_additional_parameters = True
-  
-  def _init_validator(self, validator):
-    if isinstance(validator, type):
-      validator = validator()
-    return validator
-  
-  # -------------------------------------------------------------------------
-  # additional public API 
-  
-  def add(self, fieldname, validator):
-    self._fields[fieldname] = self._init_validator(validator)
-  
-  def validator_for(self, field_name):
-    return self._fields[field_name]
-  
-  def add_formvalidator(self, formvalidator):
-    self._formvalidators.append(self._init_validator(formvalidator))
-  
-  def fieldvalidators(self):
-    return self._fields.copy()
-  
-  def formvalidators(self):
-    return tuple(self._formvalidators)
-  
-  def add_missing_validators(self, schema):
-    for name, validator in schema.fieldvalidators().items():
-      if name in self.fieldvalidators():
-        continue
-      self.add(name, validator)
-    for formvalidator in schema.formvalidators():
-      self.add_formvalidator(formvalidator)
-  
-  # -------------------------------------------------------------------------
-  # overridden public methods
-  
-  messages = {
-    'invalid_type': u'Validator got unexpected input (expected "dict", got "%(classname)s").',
-    'additional_items': u'Additional fields detected: %(additional_items)s.',
-  }
-  
-  def process(self, fields, context={}):
-    ctx_opts = {}
-    if u'ctx_opts' in context.keys():
-      ctx_opts = context[u'ctx_opts']
-    if not isinstance(fields, dict):
-      self.error('invalid_type', fields, context, ctx_opts=ctx_opts, classname=fields.__class__)
-    return self._process_fields(fields, context, ctx_opts)
-  
-  # -------------------------------------------------------------------------
-  # private
-  
-  def _value_for_field(self, field_name, validator, fields, context, field_ctx_opts):
-    if field_name in fields:
-      return fields[field_name]
-    return validator.empty_value(context, field_ctx_opts)
-  
-  def _process_field(self, key, validator, fields, context, validated_fields, exceptions, field_ctx_opts):
-    try:
-      original_value = self._value_for_field(key, validator, fields, context, field_ctx_opts)
-      converted_value = validator.process(original_value, context, field_ctx_opts)
-      validated_fields[str(key)] = converted_value
-    except InvalidDataError, e:
-      exceptions[key] = e
-  
-  def _process_field_validators(self, fields, context, ctx_opts):
-    validated_fields = {}
-    exceptions = {}
-    for key, validator in self.fieldvalidators().items():
-      ctx_opt_key = key.split(u'.', 1)[0]
-      field_ctx_opts = ctx_opts.get(ctx_opt_key, {})
-      self._process_field(key, validator, fields, context, validated_fields, exceptions, field_ctx_opts)
-    if len(exceptions) > 0:
-      self._raise_exception(exceptions, context)
-    if (not self.allow_additional_parameters) and (not set(fields).issubset(set(self.fieldvalidators()))):
-      additional_items = set(fields).difference(set(self.fieldvalidators()))
-      additional_arguments = ' '.join(["'%s'" % fields[key] for key in additional_items])
-      self.error('additional_items', None, context, {}, additional_items=additional_arguments)
-    return validated_fields
-  
-  def _process_fields(self, fields, context, ctx_opts):
-    return self._process_field_validators(fields, context, ctx_opts)
-  
-  def _raise_exception(self, exceptions, context):
-    first_field_with_error = exceptions.keys()[0]
-    first_error = exceptions[first_field_with_error].details()
-    raise InvalidDataError(first_error.msg(), first_error.value(), first_error.key(), 
-                 context, error_dict=exceptions)
-  
-  def set_allow_additional_parameters(self, value):
-    self.allow_additional_parameters = value
-  
-  # -------------------------------------------------------------------------
-
-   
-class PropertyFilterWrapper(Filter):
-  messages = {
-    u'filter_error': u'%(err_msg)s',
-  }
-
-  def __init__(self, property_name, filters, property_instance=None):
-    try:
-      #bolognium.ext.utils.log.debug('Adding property \'%s\' to SchemaFilter.' % property_name)
-      assert isinstance(filters, list)
-      assert isinstance(property_instance, bolognium.ext.db.BaseProperty)
-      for _filter in filters:
-        #bolognium.ext.utils.log.debug(u'FILTER: %s' % _filter.__class__.__name__)
-        assert isinstance(_filter, Filter)
-    except AssertionError, e:
-      raise Exception(u'Bad arguments during initialization of '
-          u'PropertyFilterWrapper() instance.')
-    self._filters = filters
-    self._property_name = property_name
-    self._property_instance = property_instance
-    super(PropertyFilterWrapper, self).__init__(required=False, strip=False)
-
-
-  def process(self, value, context={}, ctx_opts={}):
-    for _filter in self._filters:
-      try:
-        value = _filter.process(value, context=context, ctx_opts=ctx_opts)
-      except InvalidDataError, e:
-        details = e.details()
-        self.error(u'filter_error', value=details.value(),
-            context=details.context(), ctx_opts=ctx_opts, err_msg=details.msg())
-    return value
-
-  def error(self, key, value, context, errorclass=InvalidDataError, **values):
-    super(PropertyFilterWrapper, self).error(key, value, context, errorclass=errorclass, **values)
-
-  def is_empty(self, value, context, ctx_opts):
-    try:
-      _input = context[u'sanitized_input']
-      val = _input[self._property_name]
-      return False
-    except KeyError, e:
-      pass
-    return True
 
 class CurrentUserFilter(Filter):
   messages = {
@@ -397,8 +253,20 @@ class LinkFilter(Filter):
     if not scheme or not domain or len(domain.split(u'.')) < 2:
       self.error('malformed_address', converted_value, context, ctx_opts)
       
-  def is_empty(self, value, context, ctx_opts):
-    return value in (None, '')
+class EnabledFilter(Filter):
+  messages = {
+    'invalid_enabled_status': u'An unrecognised value was found for \'enabled\'.'
+  }
+    
+  def convert(self, value, context, ctx_opts):
+    try:
+      value = int(value)
+    except ValueError, e:
+      self.error(u'invalid_enabled_status', converted_value, context, ctx_opts)
+    if value == 0:
+      return False
+    elif value == 1:
+      return True
 
 class DateTimeFilter(Filter):
   messages = {
@@ -409,6 +277,7 @@ class DateTimeFilter(Filter):
     try:
       return datetime.datetime.strptime(value, u'%d %b %Y')
     except ValueError:
+      raise
       pass
     self.error('malformed_datetime', value, context, ctx_opts)
 
@@ -579,42 +448,6 @@ item in a list, raising ValidationError's as per usual.
   'validator' : The validator to check each field against.  
   'separator' : The character at which to split the string.  
 """
-class ListFilter(Filter):
-  def __init__(self, message=None, list_filter=None, separator=u',', *args, **kwargs):
-    if not isinstance(validator, Validator):
-      raise Exception(u'ListValidator must be called with validator=Validator_subclass')
-    self._message = message
-    self.messages = {u'invalid_item': message}
-    self._separator = separator
-    self._list_filter = list_filter
-    super(ListFilter, self).__init__(*args, **kwargs)
-
-    
-  def convert(self, value, context, ctx_opts):
-    return [x for x in value.split(self._separator) if len(x) > 0]
-    
-  def process(self, value, context=None):
-    if context is None:
-      context = {}
-    if self._strip_input and hasattr(value, u'strip'):
-      value = value.strip()
-    if self.is_empty(value, context) == True:
-      if self.is_required() == True:
-        self.error(u'empty', value, context, ctx_opts, errorclass=EmptyError)
-      return self.empty_value(context)
-    value_list = self.convert(value, context)
-    self.validate(value, context)
-    validated_values = []
-    for val in value_list:
-      try:
-        validated_val = self._validator.process(val)
-      except ValidationError,e:
-        self.error(u'invalid_item', value, context, ctx_opts, {u'message':self._message or e.details().msg()})
-      validated_values.append(validated_val)
-    return validated_values
-
-  def is_empty(self, value, context, ctx_opts):
-    return value in (None, u'', [])
 
 class KindFilter(Filter):
   messages = {
@@ -662,7 +495,6 @@ class ImgMetaFilter(Filter):
 
     img = bolognium.ext.db.Key(u'Img', value).get()
     if img:
-      bolognium.ext.utils.log.debug(img.meta)
       return img.meta
     self.error(u'image_error', value, context, ctx_opts)
 
@@ -894,7 +726,7 @@ class HtmlFilter(StringFilter):
 
     if len(img_ids):
       imgs = [bolognium.ext.db.Key(u'Img', id) for id in img_ids]
-      context[u'computed_data'][u'imgs'] = {u'ADD': imgs}
+      context[u'computed_data'][u'imgs'] = imgs
 
     del filtered_canvas.attrib[u'id']
     filtered_canvas.attrib[u'class'] = u'_parsed_html'
@@ -920,6 +752,12 @@ sensible_uiname_chars_only = SensibleUINameCharsOnly()
 current_user = CurrentUserFilter()
 html_filter = HtmlFilter()
 img_meta_filter = ImgMetaFilter()
+datetime_filter = DateTimeFilter()
+string_filter = StringFilter()
+slug_filter = MustOnlyContainFilter(lowercase=True, 
+  to_lowercase=True, extra_chars=(u'-'))
+enabled_filter = EnabledFilter()
+base_filter = Filter()
 
   
   

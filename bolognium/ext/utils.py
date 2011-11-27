@@ -48,12 +48,14 @@ def log_timing(func):
     t1 = time.time()
     res = func(*args, **kwargs)
     t2 = time.time()
-    log.debug(u'Function \'%s\' request took %0.3f ms' % (func.__name__, (t2-t1)*1000.0))
+    log.debug(u'Function \'%s\' request took %0.3f ms' % 
+      (func.__name__, (t2-t1)*1000.0))
     return res
   return wrapper
 
 def random_string(length):
-  return unicode(''.join([random.choice(string.letters + string.digits) for i in range(length)]))
+  return unicode(u''.join([random.choice(string.letters + string.digits) 
+    for i in range(length)]))
 
 def random_integer(start, stop, step=None):
   return random.randrange(start, stop, step)
@@ -70,16 +72,6 @@ def format_string(s, max_length=None):
     
 def make_salt():
   return os.urandom(16).encode('hex')
-
-def escape_single_quotes(input_string=u""):
-  if not isinstance(input_string, basestring):
-    raise ValueError(u'escape_single_quotes got non-string input. INPUT: %s' % input_string)
-  return input_string.replace(u"'", u"\\'")
-
-def escape_double_quotes(input_string=u""):
-  if not isinstance(input_string, basestring):
-    raise ValueError(u'escape_double_quotes got non-string input. INPUT: %s' % input_string)
-  return input_string.replace(u'"', u'\\"')
 
 def make_hash(salt, password):
   return sha256_hash(salt + password)
@@ -106,7 +98,7 @@ def event_keys():
   return conf.keys()
 
 def camel_case(s):
-  return u''.join([word.capitalize() for word in s.split(u'_')])
+  return u''.join([word.capitalize() for word in s.split((u'_'))])
 
 def un_camel_case(s):
   s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)

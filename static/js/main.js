@@ -1246,8 +1246,8 @@ goog.inherits(app.db.ImgEditor.events.ImgEditFinished, goog.events.Event);
 
 // *** app.db.Img *********************************************** //
 /**
- * A wrapper for db.Img instances on the server.
- * @param {Object} img_opts The image option variables.
+ * A wrapper for all db.Model (or subclass) instances on the server.
+ * @param {Object} opt_properties The instance properties.
  * @constructor
  */
 app.db.Model = function(type, opt_properties) {
@@ -1263,7 +1263,6 @@ goog.inherits(app.db.Model, goog.events.EventTarget);
  */
 app.db.Model.prototype.getProperty = function(prop_name, default_value) {
   res = goog.object.get(this.properties_, prop_name, default_value);
-  _logger.log(this.type_ + '.getProperty(\''+prop_name+'\'): ' + res);
   return res;
 }
 
