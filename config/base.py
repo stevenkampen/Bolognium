@@ -10,8 +10,9 @@ debug_value_cache_time = 60
 aes_key = u'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 aes_iv = u'xxxxxxxxxxxxxxxx'
 
-domain = u'http://www.wasteofpaper.com'
-secure_domain = u'https://www.wasteofpaper.com'
+site_name = u'Wasteofpaper-dev.appspot.com'
+domain = u'http://wasteofpaper-dev.appspot.com'
+secure_domain = u'https://wasteofpaper-dev.appspot.com'
 
-contact_form_sender = 'steve@wasteofpaper.com'
-contact_form_recipient = 'steve@wasteofpaper.com'
+contact_form_sender = 'guest@wasteofpaper.com'
+contact_form_recipient = 'guest@wasteofpaper.com'

@@ -6,8 +6,8 @@
 		<title>
 			Steve Sherrie | Wasteofpaper.com | {% block title %}{% endblock %}
 		</title>
-    <meta property="og:site_name" content="Wasteofpaper.com"/> 
-    <meta property="fb:admins" content="502460599" />
+    <meta property="og:site_name" content="{{utils.get_config('site_name')}}"/> 
+    <!-- <meta property="fb:admins" content="000000000" /> -->
 		<link rel="icon" type="image/x-icon" href="/img/favicon.ico">
 		<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
 		<link rel="stylesheet" type="text/css" href="/css/main.css"/>
@@ -72,9 +72,8 @@
     <div id="fb-root"></div>
     <script type="text/javascript">
       var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-26537792-1']);
+      _gaq.push(['_setAccount', 'UA-27349297-1']);
       _gaq.push(['_trackPageview']);
-
       (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
@@ -100,9 +99,10 @@
             This site relies heavily on javascript, so <strong>enable it</strong>.
           </div>
         </noscript>
+        <div class="header-message message alert">This is a deployment of the source code at <a alt="Bolognium Source" href="https://github.com/stevesherrie/Bolognium">https://github.com/stevesherrie/Bolognium</a>.</div>
         {% set messages = auth.get_session().get('messages', []) %}
         {% for msg in messages %}
-          <span class="message {{msg.type}}">{{ msg.message }}</span>
+          <div class="header-message message {{msg.type}}">{{ msg.message }}</div>
         {% endfor %}
         {% set _x = auth.clear_messages() %}
         {% block body %}{% endblock %}

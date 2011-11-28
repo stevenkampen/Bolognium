@@ -673,7 +673,10 @@ class HtmlFilter(StringFilter):
         if len(child) == 1 and child[0].tag in (u'p', u'img'):
           canvas.replace(child, child[0])
         if len(child) == 0 and len(etree.tostring(child)) < 8:
-          canvas.remove(child)
+          try:
+            canvas.remove(child)
+          except ValueError, e:
+            pass
       if child.tag == u'img':
         #filter the classes
         try:

@@ -44,14 +44,25 @@ class Img(db.Model):
   unused = db.BooleanProperty(whitelisted=True, default=False)
   deleted = db.BooleanProperty(whitelisted=True, default=False)
 
+  @classmethod
+  def _list_for_current_user(cls, is_logged_in=False):
+    return []
+  
+  @classmethod
+  def _list_for_admin(cls, is_admin=False):
+    """Don't call this directly. User model.list_for_admin()"""
+    if is_admin:
+      return cls.query().fetch(100)
+    return []
 
-  def make_cropped_copy(self, crop_args, format=None):
+  def make_cropped_copy(self, crop_args, format=None, quality=85):
     cls = self.__class__
     image = self.image
     image.crop(*crop_args)
 
     #create the image
-    new_image_data = image.execute_transforms(output_encoding=format or cls.get_format_from_string(self.format))
+    new_image_data = image.execute_transforms(output_encoding=format or 
+      cls.get_format_from_string(self.format), quality=quality)
 
     #create the blob
     new_image = images.Image(new_image_data)

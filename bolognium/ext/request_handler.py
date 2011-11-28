@@ -375,7 +375,6 @@ class RequestHandler(BaseRequestHandler):
     if body_class:
       self._body_class = body_class
 
-
   """
   Sets up all templating stuff for page request handlers
   """
@@ -461,12 +460,18 @@ class RequestHandler(BaseRequestHandler):
         ex = exc.HTTPVersionNotSupported()
       raise ex
 
-class TaskRequestHandler(BaseRequestHandler):
+class TaskRequestHandler(RequestHandler):
   pass
 
-class CronRequestHandler(BaseRequestHandler):
+  def respond(self, *args, **kwargs):
+    pass
+
+class CronRequestHandler(RequestHandler):
   def get(self, *args, **kwargs):
     self.work()
 
   def work(self, _method, **kwargs):
+    pass
+
+  def respond(self, *args, **kwargs):
     pass

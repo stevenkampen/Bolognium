@@ -14,7 +14,7 @@
     <div class="message info">There are no posts to display.</div>
   {% else %}
     {% for post in posts %}
-      <div class="post-stream">
+      <div class="post-teaser-list-item post-stream">
         <a title="View {{post.title}}" href="{{post.permalink()}}"><h2>{{post.title}}</h2></a>
         <span style="font-style:italic;color:#666;font-style:italic;">Posted:&nbsp;{{post.get_fancy_created_time()}}</span>
         {% if post.imgs|count %}
@@ -32,10 +32,10 @@
     <div style="background:url('/img/help-heading.png') 0 5px no-repeat;width:100%;height:50px;padding-top:15px;">
       <h3 style="color:#FFFFFF;margin-left:15px;">What am I Looking at</h3>
     </div>
-    <p>This website serves as the <em>mostly</em> professional online presence of me, <strong>Steven Sherrie</strong>. To learn more about me, visit the <a style="font-weight:bold;" title="About Steve Sherrie" href="/about">About</a> page.</p>
+    <p>Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis.</p>
     <div style="margin-top:15px;">
       <h2>Contact</h2>
-      <p>If you'd like to get in touch with me, use the <a style="font-weight:bold;" title="Contact Me" href="/contact">Contact</a> page.</p>
+      <p>Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. </p>
     </div>
     <div style="margin-top:15px;">
       <h2>Google+</h2>

@@ -1,0 +1,25 @@
+{% extends 'layouts/%s.html' % (layout) %}
+
+{% block title %}
+	Images
+{% endblock %}
+
+
+{% block body %}
+  <h1>Images</h1>
+  {% if imgs|count %}
+    <table width="100%">
+      <tbody>
+      {% for img in imgs %}
+      <tr>
+        <td>
+          <img title="Img:{{img.key.id()}}" src="{{img.meta.url}}"/>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="message alert">There are no Images.</div>
+  {% endif %}
+{% endblock %}

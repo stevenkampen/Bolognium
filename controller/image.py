@@ -63,7 +63,7 @@ class ImageCropAndCopyRpcHandler(RPCRequestHandler):
       crop_args = [float(x) for x in crop_args.split(u':')]
       format = self.request.get(u'format', None)
       new_img = img_instance.make_cropped_copy(
-        crop_args=crop_args, format=format)
+        crop_args=crop_args, format=format, quality=100)
       new_img.put()
       
     except db.Img.DoesNotExistError, e:

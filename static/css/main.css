@@ -163,7 +163,6 @@ h2 {
 }
 a h2, a h1 {
   color: #333;
-  text-decoration: underline;
 }
 h3 {
 	margin: 5px 0;
@@ -197,7 +196,9 @@ div.message, span.message {
 	line-height: 1.5em;
 	padding: .6em 1.5em .6em 3.5em;
 }
-
+div.message.header-message {
+  margin: 0 0 1em 0;
+}
 div.system, span.system {
 	color: #333;
   background-color: #eeeeee;
@@ -273,7 +274,7 @@ textarea {
   resize: none;
 }
 
-form.fancy input[type=submit], input[type=submit].fancy, button.fancy {
+form.fancy input[type=submit], input[type=submit].fancy, button.fancy, .modal-dialog button {
     background-color: #F5F5F5;
     background-image: -moz-linear-gradient(center top , #F5F5F5, #F1F1F1);
     border: 1px solid #ccc;
@@ -296,6 +297,9 @@ form.fancy input[type=submit], input[type=submit].fancy, button.fancy {
 div.full-page-post-body-layout p {
   width: 75%;
   padding-left: 15px;
+}
+div.post-teaser-list-item {
+  border-top: 1px solid #EAEAEA;
 }
 
 /** Misc **/
@@ -441,6 +445,7 @@ div.full-page-post-body-layout p {
     display: inline;
 }
 .modal-dialog {
+    z-index: 10000;
     background: none repeat scroll 0 0 #C1D9FF;
     color: #000000;
     padding: 8px;

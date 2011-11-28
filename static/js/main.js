@@ -877,9 +877,9 @@ app.db.ImgEditor.prototype.triggerCrop_ = function(e) {
     if (response.isSuccess()) {
       _logger.log('Completed the "image_crop_and_copy" RPC.');
       var response_data = response.getResponseJson();
-      var updated_gallery = new app.db.Img(response_data['cropped_img']);
+      var cropped_img = new app.db.Img(response_data['cropped_img']);
       this.dispatchEvent(new app.events.endLoadingEvent());
-      this.triggerEditFinish_(this.img_);
+      this.triggerEditFinish_(cropped_img);
     } else {
       _logger.log("Error with the image processing!. MSG: "+ response_data.error_msg);
     }
