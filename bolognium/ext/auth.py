@@ -72,16 +72,6 @@ def current_user(name=None):
   
   return user
 
-def require_idz_secure():
-  def idz_secure_required(func):
-    def wrapped_f(self, *args, **kwargs):
-      if True:
-        func(self, *args, **kwargs)
-      else:
-        return self.error(401)
-    return wrapped_f
-  return idz_secure_required
-
 def require_admin():
   def admin_required(func):
     def wrapped_f(self, *args, **kwargs):
@@ -95,17 +85,17 @@ def require_admin():
 def require_user():
   def user_required(func):
     def wrapped_f(self, *args, **kwargs):
-      if self.current_user():
+      if users.get_current_user():
         func(self, *args, **kwargs)
       else:
-        return self.error(404)
+        return self.redirect(users.create_login_url(self.request.uri))
     return wrapped_f
   return user_required
 
 def require_anon():
   def anon_required(func):
     def wrapped_f(self, *args, **kwargs):
-      if not is_logged_in():
+      if not users.get_current_user():
         func(self, *args, **kwargs)
       else:
         return self.error(404)

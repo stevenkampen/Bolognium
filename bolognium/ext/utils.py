@@ -168,35 +168,6 @@ class AppLogsHandler(logging.Handler):
     else:
       return 0
 
-def send_contact(from_name, from_email, message):
-  try:
-    body_template = template.get_template(name=u'email/contact.html')
-    tpl_args = {
-      u'from_name': from_name, 
-      u'from_email': from_email, 
-      u'message':message
-    }
-    body = body_template.render(tpl_args)
-    sender = get_config(u'contact_form_sender')
-    recipient = get_config(u'contact_form_recipient')
-    domain = get_config(u'domain')
-    assert sender
-    assert recipient 
-    assert domain
-    assert from_name
-    assert message
-    assert from_email
-    mail.send_mail(
-      sender=sender,
-      to=recipient,
-      subject="Contact form submission on %s. NAME: %s EMAIL: %s"
-        % (domain, from_name, from_email),
-      body=body,
-      reply_to=from_email
-    )
-  except AssertionError, e:
-    log.error(u"Something was missing when trying to send a site contact form submission.")
-
 def convertToHumanReadable(date_time):
   """
   converts a python datetime object to the 

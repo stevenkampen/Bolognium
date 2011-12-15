@@ -6,42 +6,10 @@
 {% endblock %}
 
 {% block body %}
-<div style="width:420px;float:left;">
-  <div class="h1-bg" style="background:url('/img/recent-heading.png') no-repeat;width:100%;padding-top:1px;">
-    <h1 style="color:#FFFFFF;margin-left:50px;padding:0;">Recent Stuff</h1>
-  </div>
-  {% if not posts|count %}
-    <div class="message info">There are no posts to display.</div>
-  {% else %}
-    {% for post in posts %}
-      <div class="post-teaser-list-item post-stream">
-        <a title="View {{post.title}}" href="{{post.permalink()}}"><h2>{{post.title}}</h2></a>
-        <span style="font-style:italic;color:#666;font-style:italic;">Posted:&nbsp;{{post.get_fancy_created_time()}}</span>
-        {% if post.imgs|count %}
-        <img style="width:100%;" src="{{post.imgs[0].get().url}}"/>
-        {% endif %}
-        <p>
-          {{post.teaser}}
-        </p>
-      </div>
-    {% endfor %}
-  {% endif %}
-</div>
-<div style="border:2px solid #fff0c2;background:#fffaeb;font-size:110%;width:250px;float:right;">
-  <div style="margin:10px;">
-    <div style="background:url('/img/help-heading.png') 0 5px no-repeat;width:100%;height:50px;padding-top:15px;">
-      <h3 style="color:#FFFFFF;margin-left:15px;">What am I Looking at</h3>
-    </div>
-    <p>Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis.</p>
-    <div style="margin-top:15px;">
-      <h2>Contact</h2>
-      <p>Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. </p>
-    </div>
-    <div style="margin-top:15px;">
-      <h2>Google+</h2>
-      <!--Place this tag where you want the widget to render-->
-      <script type="text/javascript">pid='103490014051577974992';nbp='5';hll='yes';bkg='transparent';txt='0c0c0c';lin='36c';bor='f5f5f5';rad='0';pad='10';wid='230';fav='yes';hea='yes';gwi='yes';pag='no';api='AIzaSyBfBzFf6_o_zFicjxnZLtsSlJcD_h6dkMw';</script><script type="text/javascript" src="http://gplusapi.appspot.com/a.js"></script>
-    </div>
-  </div>
-</div>
+<h1>Home</h1>
+<ul>
+  <li>
+    <a href="/page/style-test">Style Test</a>
+  </li>
+</ul>
 {% endblock %}
